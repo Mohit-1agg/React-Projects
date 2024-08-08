@@ -6,9 +6,9 @@ export const checkValidSignInData = (email, password) => {
 };
 
 export const checkValidSignUpData = (email, password, name) => {
-  const isValidName = /^[A-Za-z]{3,}$/.test(name);
+  const isValidName = /^[A-Za-z\s]{3,}$/.test(name);
 
-  if (name.length < 3 || !isValidName) return "Name id not valid";
+  if (name?.trim().length < 3 || !isValidName) return "Name id not valid";
   if (!checkEmail(email)) return "Email ID is not valid";
   if (!checkPassword(password)) return "Password is not valid";
 
