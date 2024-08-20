@@ -13,7 +13,10 @@ export const fetchUser = (req, res, next) => {
     req.user = verifyToken.user;
     next();
   } catch (err) {
-    console.error(err);
+    throw new Error({
+      status: 401,
+      message: 'Invalid Token'
+    });
   }
 }
 ;

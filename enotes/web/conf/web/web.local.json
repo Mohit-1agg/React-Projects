@@ -1,0 +1,13 @@
+{
+  "env": "local",
+  "appData": {
+    "env": "local",
+    "app": "enotes",
+    "version": "1.0.0",
+    "core_api": "http://localhost:8080",
+    "core_web": "http://localhost:5001"
+  },
+  "headers" : {
+    "HttpHeaderXToken": "x-header-api-token"
+  }
+}
