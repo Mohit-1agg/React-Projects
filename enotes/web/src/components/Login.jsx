@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
@@ -7,22 +7,25 @@ import AuthContext from '../context/AuthContext';
 const Login = () => {
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
-  const { user, login } = authContext;
-
-  const email = useRef(null);
-  const password = useRef(null);
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const { user, login, errors } = authContext;
 
   useEffect(() => {
     if (user?.isAuthenticated) {
       navigate('/');
     }
-  }, []);
+  }, [user]);
 
   const handleSubmitClick = async (e) => {
     e.preventDefault();
+    await login(formData.email, formData.password);
+  };
 
-    await login(email.current.value, password.current.value);
-    navigate('/');
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   return (
@@ -34,13 +37,15 @@ const Login = () => {
               <h3 className='text-center mb-4'>Login</h3>
               <Form onSubmit={handleSubmitClick}>
                 <Form.Group controlId='formBasicEmail'>
-                  <Form.Label>Email address</Form.Label>
-                  <Form.Control type='email' ref={email} placeholder='Enter email' />
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control type='email' name='email' value={formData.email} onChange={handleChange} placeholder='Enter email' isInvalid={!!errors.email} />
+                  <Form.Control.Feedback type='invalid'>{errors.email ? errors.email.msg : ''}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId='formBasicPassword' className='mt-3'>
                   <Form.Label>Password</Form.Label>
-                  <Form.Control type='password' ref={password} placeholder='Password' />
+                  <Form.Control type='password' name='password' value={formData.password} onChange={handleChange} placeholder='Password' isInvalid={!!errors.password} />
+                  <Form.Control.Feedback type='invalid'>{errors.password ? errors.password.msg : ''}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Button variant='primary' type='submit' className='w-100 mt-4'>

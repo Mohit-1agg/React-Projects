@@ -37,8 +37,7 @@ export default router.post('/login', ...validations, async (req, res) => {
 
     res.status(200).send({
       status: 'OK',
-      msg: 'User login successfully',
-      data: { authToken }
+      data: { authToken, msg: 'User login successfully' }
     });
   } catch (err) {
     res.status(500).send(err);
