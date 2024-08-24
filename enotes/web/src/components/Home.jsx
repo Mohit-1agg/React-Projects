@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/esm/Col';
 
 const Home = () => {
   return (
-    <Container fluid className='vh-90'>
+    <Container fluid className='vh-90 mt-5'>
       <Row>
         <Col xs={7} className='px-5'>
           <Notes />

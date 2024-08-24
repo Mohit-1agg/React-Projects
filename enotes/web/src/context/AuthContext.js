@@ -35,7 +35,6 @@ export const AuthContextProvider = (props) => {
       setErrors({});
       $toastr.onSuccess(loginResponse.data.msg);
     } catch (err) {
-      console.log('AUTH CONTEXT ', err);
       if (err?.response?.data?.data) {
         return setErrors(err.response.data.data);
       } else {

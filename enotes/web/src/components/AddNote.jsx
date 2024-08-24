@@ -1,82 +1,115 @@
-import React, { useContext, useRef, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import NoteContext from '../context/NoteContext';
 import NoteFormContext from '../context/NoteFormContext';
 
 const AddNote = () => {
-  const noteContext = useContext(NoteContext);
-  const noteFormContext = useContext(NoteFormContext);
+  const { addNote, updateNote, errors = {} } = useContext(NoteContext);
+  const { addFormType, currentEditNote } = useContext(NoteFormContext);
 
-  const { addNote, updateNote, errors } = noteContext;
-  const { addFormType, currentEditNote } = noteFormContext;
-
-  const title = useRef(null);
-  const description = useRef(null);
-  const tag = useRef(null);
-  const [editNoteId, setEditNoteId] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    tag: '',
+    id: null
+  });
 
   const resetForm = () => {
-    title.current.value = '';
-    description.current.value = '';
-    tag.current.value = '';
-    setEditNoteId(null);
-  };
-
-  const handleAddNoteClick = (e) => {
-    e.preventDefault();
-    addNote({
-      title: title.current.value,
-      description: description.current.value,
-      tag: tag.current.value
-    }, resetForm);
-  };
-
-  const handleEditNoteClick = () => {
-    updateNote({
-      id: editNoteId,
-      title: title.current.value,
-      description: description.current.value,
-      tag: tag.current.value
+    setFormData({
+      title: '',
+      description: '',
+      tag: '',
+      id: null
     });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const { title, description, tag, id } = formData;
+
+    if (addFormType) {
+      addNote({ title, description, tag }, resetForm);
+    } else {
+      updateNote({
+        title,
+        description,
+        tag,
+        id
+      });
+    }
   };
 
   useEffect(() => {
     if (addFormType) {
-      // If we're adding a new note, reset the form fields
       resetForm();
     } else if (currentEditNote) {
-      // If we're editing a note, populate the form with existing note data
-      title.current.value = currentEditNote.title;
-      description.current.value = currentEditNote.description;
-      tag.current.value = currentEditNote.tag;
-      setEditNoteId(currentEditNote._id);
+      setFormData({
+        title: currentEditNote.title,
+        description: currentEditNote.description,
+        tag: currentEditNote.tag,
+        id: currentEditNote._id
+      });
     }
   }, [addFormType, currentEditNote]);
 
   return (
     <>
-      <h2 className='text-center'>{addFormType ? 'Add Notes' : 'Edit Note'}</h2>
-      <Form onSubmit={(e) => e.preventDefault()}>
+      <h2 className='text-center'>{addFormType ? 'Add Note' : 'Edit Note'}</h2>
+      <Form onSubmit={handleFormSubmit}>
         <Form.Group className='mb-3' controlId='formBasicTitle'>
           <Form.Label className='fw-bold'>Title</Form.Label>
-          <Form.Control type='text' placeholder='Enter the title' ref={title} isInvalid={!!errors.title} />
-          <Form.Control.Feedback type='invalid'>{errors.title ? errors.title.msg : ''}</Form.Control.Feedback>
+          <Form.Control
+            type='text'
+            placeholder='Enter the title'
+            name='title'
+            value={formData.title}
+            onChange={handleChange}
+            isInvalid={!!errors?.title}
+            aria-describedby={errors?.title ? 'title-error' : null}
+          />
+          <Form.Control.Feedback type='invalid' id='title-error'>
+            {errors?.title?.msg}
+          </Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className='mb-3' controlId='formBasicDescription'>
           <Form.Label className='fw-bold'>Description</Form.Label>
-          <Form.Control type='text' placeholder='Enter the description' ref={description} isInvalid={!!errors.description} />
-          <Form.Control.Feedback type='invalid'>{errors.description ? errors.description.msg : ''}</Form.Control.Feedback>
+          <Form.Control
+            type='text'
+            placeholder='Enter the description'
+            name='description'
+            value={formData.description}
+            onChange={handleChange}
+            isInvalid={!!errors?.description}
+            aria-describedby={errors?.description ? 'description-error' : null}
+          />
+          <Form.Control.Feedback type='invalid' id='description-error'>
+            {errors?.description?.msg}
+          </Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className='mb-3' controlId='formBasicTag'>
           <Form.Label className='fw-bold'>Tag</Form.Label>
-          <Form.Control type='text' placeholder='Enter the tag' ref={tag} />
+          <Form.Control
+            type='text'
+            placeholder='Enter the tag'
+            name='tag'
+            value={formData.tag}
+            onChange={handleChange}
+          />
         </Form.Group>
 
-        <Button variant='primary' type='submit' onClick={addFormType ? handleAddNoteClick : handleEditNoteClick}>
-          {addFormType ? 'Add note' : 'Edit note'}
+        <Button variant='primary' type='submit'>
+          {addFormType ? 'Add Note' : 'Edit Note'}
         </Button>
       </Form>
     </>

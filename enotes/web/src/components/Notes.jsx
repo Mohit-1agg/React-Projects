@@ -14,6 +14,8 @@ import { useNavigate } from 'react-router-dom';
 
 const Notes = () => {
   const [showFullWidth, setShowFullWidth] = useState(true);
+  const [highlightedId, setHighlightedId] = useState(null);
+
   const noteContext = useContext(NoteContext);
   const noteFormContext = useContext(NoteFormContext);
   const authContext = useContext(AuthContext);
@@ -33,8 +35,14 @@ const Notes = () => {
   }, []);
 
   const onEdit = (note) => {
+    setHighlightedId(note._id);
     setCurrentEditNote(note);
     changeToEditForm();
+  };
+
+  const handleAddButton = () => {
+    setHighlightedId(null);
+    changeToAddForm();
   };
 
   return (
@@ -42,7 +50,7 @@ const Notes = () => {
       <Row>
         <Col xs={10}><h2 className='text-center'>Your Notes</h2></Col>
         <Col>
-          <button className='btn btn-light rounded-2 btn-sm border border-1 mx-1' onClick={() => changeToAddForm()}>
+          <button className='btn btn-light rounded-2 btn-sm border border-1 mx-1' onClick={handleAddButton}>
             <MdAdd className='fs-5' />
           </button>
           <button className='btn btn-light rounded-2 btn-sm border border-1 mx-1' onClick={() => setShowFullWidth(!showFullWidth)}>
@@ -53,7 +61,7 @@ const Notes = () => {
       <Row className='overflow-auto' style={{ maxHeight: '70vh' }}>
         {notes.length > 0 && notes.map(note => {
           return (
-            <NoteItem key={note._id} note={note} onEdit={onEdit} showFullWidth={showFullWidth} />
+            <NoteItem key={note._id} note={note} onEdit={onEdit} selected={highlightedId} showFullWidth={showFullWidth} />
           );
         })}
       </Row>

@@ -1,37 +1,50 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 import $api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import $toastr from '../services/toastrHelper';
 
 const SignUp = () => {
-  // const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  const name = useRef(null);
-  const email = useRef(null);
-  const password = useRef(null);
-  const cPassword = useRef(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    cPassword: ''
+  });
+
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
 
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (password.current.value !== cPassword.current.value) {
-        throw new Error('Password and confirm password not matched');
+      const { name, email, password, cPassword } = formData;
+
+      if (password !== cPassword) {
+        throw new Error('Password and confirm password do not match');
       }
 
       await $api.post('/api/auth/create/user', {
-        name: name.current.value,
-        email: email.current.value,
-        password: password.current.value
+        name,
+        email,
+        password
       });
 
       navigate('/');
     } catch (err) {
-      if (err.message) {
-        console.error('error message', err.message);
+      if (err.response && err.response.data) {
+        setErrors(err.response.data);
       } else {
-        console.log('sign up err response', err.response.data);
-        // setErrors(err.data);
+        $toastr.onError(err.response.data.msg || 'Login failed. Please try again.');
       }
     }
   };
@@ -42,30 +55,70 @@ const SignUp = () => {
         <Col md={6} lg={4} className='d-flex align-items-center'>
           <Card className='w-100'>
             <Card.Body>
-              <h3 className='text-center mb-4'>SignUp</h3>
+              <h3 className='text-center mb-4'>Sign Up</h3>
               <Form onSubmit={handleSignUpSubmit}>
-                <Form.Group controlId='formBasicEmail'>
+                <Form.Group controlId='formBasicName'>
                   <Form.Label>Name</Form.Label>
-                  <Form.Control type='name' placeholder='Enter name' ref={name} />
+                  <Form.Control
+                    type='text'
+                    placeholder='Enter name'
+                    name='name'
+                    value={formData.name}
+                    onChange={handleChange}
+                    isInvalid={!!errors.name}
+                  />
+                  <Form.Control.Feedback type='invalid'>
+                    {errors.name}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId='formBasicEmail' className='mt-3'>
                   <Form.Label>Email address</Form.Label>
-                  <Form.Control type='email' placeholder='Enter email' ref={email} />
+                  <Form.Control
+                    type='email'
+                    placeholder='Enter email'
+                    name='email'
+                    value={formData.email}
+                    onChange={handleChange}
+                    isInvalid={!!errors.email}
+                  />
+                  <Form.Control.Feedback type='invalid'>
+                    {errors.email}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId='formBasicPassword' className='mt-3'>
                   <Form.Label>Password</Form.Label>
-                  <Form.Control type='password' placeholder='Password' ref={password} />
+                  <Form.Control
+                    type='password'
+                    placeholder='Password'
+                    name='password'
+                    value={formData.password}
+                    onChange={handleChange}
+                    isInvalid={!!errors.password}
+                  />
+                  <Form.Control.Feedback type='invalid'>
+                    {errors.password}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
-                <Form.Group controlId='formBasicPassword' className='mt-3'>
+                <Form.Group controlId='formBasicConfirmPassword' className='mt-3'>
                   <Form.Label>Confirm Password</Form.Label>
-                  <Form.Control type='password' placeholder='Confirm Password' ref={cPassword} />
+                  <Form.Control
+                    type='password'
+                    placeholder='Confirm Password'
+                    name='cPassword'
+                    value={formData.cPassword}
+                    onChange={handleChange}
+                    isInvalid={!!errors.cPassword}
+                  />
+                  <Form.Control.Feedback type='invalid'>
+                    {errors.cPassword}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
                 <Button variant='primary' type='submit' className='w-100 mt-4'>
-                  SignUp
+                  Sign Up
                 </Button>
               </Form>
             </Card.Body>

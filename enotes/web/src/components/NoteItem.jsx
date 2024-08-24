@@ -5,7 +5,7 @@ import { RiDeleteBin5Line } from 'react-icons/ri';
 import { FaEdit } from 'react-icons/fa';
 import NoteContext from '../context/NoteContext';
 
-const NoteItem = ({ note, onEdit, showFullWidth }) => {
+const NoteItem = ({ note, onEdit, showFullWidth, selected }) => {
   const noteContext = useContext(NoteContext);
   const { deleteNote } = noteContext;
   const { title, description, tag } = note;
@@ -16,7 +16,7 @@ const NoteItem = ({ note, onEdit, showFullWidth }) => {
 
   return (
     <Col xs={showFullWidth ? 12 : 4} className='my-3'>
-      <Card className='h-100'>
+      <Card className={`h-100 ${selected === note._id ? 'bg-light' : ''}`}>
         <Card.Body>
           <div className='d-flex justify-content-between align-items-center'>
             <Card.Title>{title}</Card.Title>

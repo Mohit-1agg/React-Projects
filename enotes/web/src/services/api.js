@@ -14,7 +14,6 @@ const axiosInstance = axios.create({
 
 // Utility function for GET requests
 const get = async (url, config = {}) => {
-  console.log('config.headers::', config.headers);
   try {
     const response = await axiosInstance.get(url, {
       ...config,

@@ -1,6 +1,7 @@
 import { createContext, useState } from 'react';
 import $api from '../services/api.js';
 import { getLocalStorageItem } from '../services/localStorageHelper.js';
+import $toastr from '../services/toastrHelper';
 
 const NoteContext = createContext({});
 
@@ -14,9 +15,11 @@ export const NoteContextProvider = (props) => {
       const newNote = await $api.post('/api/add/note', { title, description, tag }, {
         headers: getLocalStorageItem('core.token')
       });
+
       cb();
       setNotes([...notes, newNote.data]);
       setErrors({}); // Clear errors on successful submission
+      $toastr.onSuccess(newNote.msg);
     } catch (err) {
       setErrors(err.response.data.data);
     }
@@ -24,17 +27,18 @@ export const NoteContextProvider = (props) => {
 
   // Delete a note
   const deleteNote = async (id) => {
-    await $api.remove(`/api/delete/note/${id}`, {
+    const deleteNote = await $api.remove(`/api/delete/note/${id}`, {
       headers: getLocalStorageItem('core.token')
     });
 
     const newNotes = notes.filter(note => note._id !== id);
     setNotes(newNotes);
+    $toastr.onSuccess(deleteNote.msg);
   };
 
   // Update a note
   const updateNote = async ({ id, title, description, tag }) => {
-    await $api.put(`/api/update/note/${id}`, { title, description, tag }, {
+    const updateNote = await $api.put(`/api/update/note/${id}`, { title, description, tag }, {
       headers: getLocalStorageItem('core.token')
     });
 
@@ -49,6 +53,7 @@ export const NoteContextProvider = (props) => {
     });
 
     setNotes(updatedNotes);
+    $toastr.onSuccess(updateNote.msg);
   };
 
   const getNotes = async () => {
